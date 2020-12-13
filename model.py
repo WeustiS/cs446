@@ -45,15 +45,15 @@ class UNet(nn.Module):
         self.pool_3 = unet_max_pool()
         self.down_4 = unet_conv_block(self.num_filters * 4, self.num_filters * 8)
         self.pool_4 = unet_max_pool()
-        self.down_5 = unet_conv_block(self.num_filters * 8, self.num_filters * 16)
-        self.pool_5 = unet_max_pool()
+ #       self.down_5 = unet_conv_block(self.num_filters * 8, self.num_filters * 16)
+ #       self.pool_5 = unet_max_pool()
 
         # Bridge
-        self.bridge = unet_conv_block(self.num_filters * 16, self.num_filters * 32)
+        self.bridge = unet_conv_block(self.num_filters * 8, self.num_filters * 16)
 
         # Up sampling
-        self.trans_1 = conv3dtrans_bn_relu(self.num_filters * 32, self.num_filters * 32)
-        self.up_1 = unet_conv_block(self.num_filters * 48, self.num_filters * 16)
+ #       self.trans_1 = conv3dtrans_bn_relu(self.num_filters * 32, self.num_filters * 32)
+ #       self.up_1 = unet_conv_block(self.num_filters * 48, self.num_filters * 16)
         self.trans_2 = conv3dtrans_bn_relu(self.num_filters * 16, self.num_filters * 16)
         self.up_2 = unet_conv_block(self.num_filters * 24, self.num_filters * 8)
         self.trans_3 = conv3dtrans_bn_relu(self.num_filters * 8, self.num_filters * 8)
@@ -80,18 +80,18 @@ class UNet(nn.Module):
         down_4 = self.down_4(pool_3)  # -> [n, 32, 24, 24, 24]
         pool_4 = self.pool_4(down_4)  # -> [n, 32, 12, 12, 12]
 
-        down_5 = self.down_5(pool_4)  # -> [n, 64, 12, 12, 12]
-        pool_5 = self.pool_5(down_5)  # -> [n, 64, 6, 6, 6]
+  #      down_5 = self.down_5(pool_4)  # -> [n, 64, 12, 12, 12]
+  #      pool_5 = self.pool_5(down_5)  # -> [n, 64, 6, 6, 6]
 
         # Bridge
-        bridge = self.bridge(pool_5)  # -> [n, 128, 6, 6, 6]
+        bridge = self.bridge(pool_4)  # -> [n, 128, 6, 6, 6]
 
         # Up sampling
-        trans_1 = self.trans_1(bridge)  # -> [n, 128, 12, 12, 12]
-        concat_1 = torch.cat([trans_1, down_5], dim=1)  # -> [n, (128+64), 12,12,12]
-        up_1 = self.up_1(concat_1)  # -> [n, 64, 12,12,12]
+  #      trans_1 = self.trans_1(bridge)  # -> [n, 128, 12, 12, 12]
+  #      concat_1 = torch.cat([trans_1, down_5], dim=1)  # -> [n, (128+64), 12,12,12]
+  #      up_1 = self.up_1(concat_1)  # -> [n, 64, 12,12,12]
 
-        trans_2 = self.trans_2(up_1)  # -> [n, 64, 24,24,24]
+        trans_2 = self.trans_2(bridge)  # -> [n, 64, 24,24,24]
         concat_2 = torch.cat([trans_2, down_4], dim=1)  # -> [n, (64+32),24,24,24]
         up_2 = self.up_2(concat_2)  # -> [n, 32, 24,24,24]
 
