@@ -109,6 +109,8 @@ class UNet(nn.Module):
 
         # Output
         out = self.out(up_5)  # -> [n, out, 192, 192, 192]
+        out = torch.softmax(out, dim=1) # -> [n, out(softmax), 192,192,192]
+
         return out
 
 
