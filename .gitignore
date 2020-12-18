@@ -1,3 +1,6 @@
 data_pub/
 test_pub/
 *.zip
+UNet_*
+wandb/
+__pycache__/
